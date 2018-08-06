@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "virtualMachineName": {
+            "value": "webServerAnsible"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B1s"
+        },
+        "adminUsername": {
+            "value": "webadmin"
+        },
+        "virtualNetworkName": {
+            "value": "demoVnet"
+        },
+        "networkInterfaceName": {
+            "value": "webserveransible345"
+        },
+        "adminPassword": {
+            "value": null
+        },
+        "subnetName": {
+            "value": "BackEnd"
+        },
+        "autoShutdownStatus": {
+            "value": "Enabled"
+        },
+        "autoShutdownTime": {
+            "value": "18:00"
+        },
+        "autoShutdownTimeZone": {
+            "value": "Pacific Standard Time"
+        },
+        "autoShutdownNotificationStatus": {
+            "value": "Disabled"
+        }
+    }
+}
