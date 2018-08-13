@@ -1,0 +1,86 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "cloudGuardVersion": {
+            "value": "R80.10 - Bring Your Own License"
+        },
+        "instanceCount": {
+            "value": "2"
+        },
+        "maxInstanceCount": {
+            "value": "3"
+        },
+        "managementServer": {
+            "value": "cpMgmt"
+        },
+        "configurationTemplate": {
+            "value": "AnsibleTemplate"
+        },
+        "adminPassword": {
+            "value": null
+        },
+        "authenticationType": {
+            "value": "password"
+        },
+        "vmName": {
+            "value": "AnsibleScaleSet"
+        },
+        "vmSize": {
+            "value": "Standard_B1s"
+        },
+        "sicKey": {
+            "value": null
+        },
+        "virtualNetworkName": {
+            "value": "testVnet"
+        },
+        "virtualNetworkAddressPrefixes": {
+            "value": [
+                "192.168.0.0/16"
+            ]
+        },
+        "subnet1Name": {
+            "value": "FrontEnd"
+        },
+        "subnet1Prefix": {
+            "value": "192.168.1.0/24"
+        },
+        "subnet2Name": {
+            "value": "BackEnd"
+        },
+        "subnet2Prefix": {
+            "value": "192.168.2.0/24"
+        },
+        "Subnet2StartAddress": {
+            "value": "192.168.2.5"
+        },
+        "vnetNewOrExisting": {
+            "value": "existing"
+        },
+        "virtualNetworkExistingRGName": {
+            "value": "rg-Vnet"
+        },
+        "allowDownloadFromUploadToCheckPoint": {
+            "value": "true"
+        },
+        "instanceLevelPublicIP": {
+            "value": "yes"
+        },
+        "ipAddress4mgmt": {
+            "value": "private"
+        },
+        "diskType": {
+            "value": "Standard_LRS"
+        },
+        "appLoadDistribution": {
+            "value": "Default"
+        },
+        "ilbLoadDistribution": {
+            "value": "Default"
+        }
+    }
+}
