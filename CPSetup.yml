@@ -1,0 +1,156 @@
+---
+- hosts: Azure-Mgmt
+  tasks:
+  - name: "login"
+    check_point_mgmt:
+      command: login
+      parameters:
+        username: "{{mgmt_user}}"
+        password: "{{mgmt_password}}"
+        management: "{{mgmt_server}}"
+      fingerprint: "{{fingerprint}}"
+    register: login_response
+
+  - name: "add dynamic object External"
+    check_point_mgmt:
+      command: add-dynamic-object
+      parameters:
+        name: "LocalGatewayExternal"
+        color: "yellow"
+      session-data: "{{login_response}}"
+
+  - name: "add dynamic object Internal"
+    check_point_mgmt:
+      command: add-dynamic-object
+      parameters:
+        name: "LocalGatewayInternal"
+        color: "yellow"
+      session-data: "{{login_response}}"
+
+  - name: "add web server object"
+    check_point_mgmt:
+      command: add-host
+      parameters:
+        name: "AnsibleWeb"
+        ip-address: "192.168.27.4"
+        color: "green"
+      session-data: "{{login_response}}"
+
+  - name: "add-http8081"
+    check_point_mgmt:
+      command: add-service-tcp
+      parameters:
+        name: "http-8081"
+        port: "8081"
+        protocol: "http"
+        color: "dark blue"
+      session-data: "{{login_response}}"
+
+  - name: "create AnsiblePolicy package"
+    check_point_mgmt:
+      command: add-package
+      parameters:
+        name: "AnsiblePolicy"
+        color: "orange"
+      session-data: "{{login_response}}"
+
+  - name: "add Management Rule"
+    check_point_mgmt:
+      command: add-access-rule
+      parameters:
+        layer: "AnsiblePolicy Network"
+        position: "top"
+        name: "Management"
+        action: "Accept"
+        destination: "cpmgmt"
+        enabled: "true"
+        service:
+          - "ssh"
+          - "https"
+          - "icmp-proto"
+        track:
+          type: "Log"
+      session-data: "{{login_response}}"
+
+  - name: "SSH to Gateways"
+    check_point_mgmt:
+      command: add-access-rule
+      parameters:
+        layer: "AnsiblePolicy Network"
+        position: 2
+        name: "SSH to Gateways"
+        action: "Accept"
+        destination:
+          - "LocalGatewayExternal"
+          - "LocalGatewayInternal"
+        enabled: "true"
+        source: "cpmgmt"
+        service:
+          - "ssh"
+          - "icmp-proto"
+        track:
+          type: "Log"
+      session-data: "{{login_response}}"
+
+  - name: "External LB rule"
+    check_point_mgmt:
+      command: add-access-rule
+      parameters:
+        layer: "AnsiblePolicy Network"
+        position: 3
+        name: "External LB"
+        action: "Accept"
+        destination: 
+          - "LocalGatewayExternal"
+          - "LocalGatewayInternal"
+        enabled: "true"
+        service: "http-8081"
+        track:
+          type: "Log"
+      session-data: "{{login_response}}"
+
+  - name: "add Management Rule"
+    check_point_mgmt:
+      command: add-access-rule
+      parameters:
+        layer: "AnsiblePolicy Network"
+        position: 4
+        name: "Cleanup"
+        action: "Accept"
+        enabled: "true"
+        track:
+          type: "Log"
+      session-data: "{{login_response}}"
+
+  - name: "add NAT rule"
+    check_point_mgmt:
+      command: add-nat-rule
+      parameters:
+        package: "AnsiblePolicy"
+        position: "top"
+        method: "hide"
+        original-source: "All_Internet"
+        original-destination: "LocalGatewayExternal"
+        original-service: "http-8081"
+        translated-source: "LocalGatewayInternal"
+        translated-destination: "AnsibleWeb"
+        translated-service: "http"
+      session-data: "{{login_response}}"
+
+  - name: "delete default Cleanup rule"
+    check_point_mgmt:
+      command: delete-access-rule
+      parameters:
+        layer: "AnsiblePolicy Network"
+        rule-number: 5
+      session-data: "{{login_response}}"
+
+  - name: "publish"
+    check_point_mgmt:
+      command: publish
+      session-data: "{{login_response}}"
+
+  - name: "logout"
+    check_point_mgmt:
+      command: logout
+      session-data: "{{login_response}}"

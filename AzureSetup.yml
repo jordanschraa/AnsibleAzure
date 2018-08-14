@@ -1,0 +1,123 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "Ansible-Deployment"
+        location: "eastus"
+
+    - name: Create new frontend subnet
+      azure_rm_subnet:
+        name: "AnsibleFrontEnd"
+        virtual_network_name: "testVnet"
+        resource_group: "rg-Vnet"
+        address_prefix_cidr: "192.168.25.0/24"
+
+    - name: Create new backend subnet
+      azure_rm_subnet:
+        name: "AnsibleBackEnd"
+        virtual_network_name: "testVnet"
+        resource_group: "rg-Vnet"
+        address_prefix_cidr: "192.168.26.0/24"
+
+    - name: Create web subnet
+      azure_rm_subnet:
+        name: "AnsibleWeb"
+        virtual_network_name: "testVnet"
+        resource_group: "rg-Vnet"
+        address_prefix_cidr: "192.168.27.0/24"
+
+    - name: Create single gateway subnet
+      azure_rm_subnet:
+        name: "AnsibleGateway"
+        virtual_network_name: "testVnet"
+        resource_group: "rg-Vnet"
+        address_prefix_cidr: "192.168.28.0/24"
+
+    - name: Create Check Point Scale Set
+      azure_rm_deployment:
+        state: present
+        resource_group_name: "Ansible-ScaleSet"
+        template_link: https://raw.githubusercontent.com/jordanschraa/ansibleAzure/master/ScaleSetTemplate.txt
+        parameters:
+          "location":
+            "value": "eastus"
+          "cloudGuardVersion":
+            "value": "R80.10 - Bring Your Own License"
+          "instanceCount": 
+            "value": "2"
+          "maxInstanceCount": 
+            "value": "3"
+          "managementServer": 
+            "value": "cpMgmt"
+          "configurationTemplate":
+            "value": "AnsibleTemplate"
+          "adminPassword": 
+            "value": "Cpwins1!Cpwins1!"
+          "authenticationType": 
+            "value": "password"
+          "vmName": 
+            "value": "AnsibleScaleSet"
+          "vmSize": 
+            "value": "Standard_B1s"
+          "sicKey":
+            "value": "abcd1234"
+          "virtualNetworkName":
+            "value": "testVnet"
+          "virtualNetworkAddressPrefixes":
+            "value": [
+                "192.168.0.0/16"
+            ]
+          "subnet1Name":
+            "value": "AnsibleFrontEnd"
+          "subnet1Prefix":
+            "value": "192.168.25.0/24"
+          "subnet2Name": 
+            "value": "AnsibleBackEnd"
+          "subnet2Prefix": 
+            "value": "192.168.26.0/24"
+          "Subnet2StartAddress": 
+            "value": "192.168.26.5"
+          "vnetNewOrExisting": 
+            "value": "existing"
+          "virtualNetworkExistingRGName": 
+            "value": "rg-Vnet"
+          "allowDownloadFromUploadToCheckPoint": 
+            "value": "true"
+          "instanceLevelPublicIP":
+            "value": "yes"
+          "ipAddress4mgmt":
+            "value": "private"
+          "diskType":
+            "value": "Standard_LRS"
+          "appLoadDistribution":
+            "value": "Default"
+          "ilbLoadDistribution": 
+            "value": "Default"
+
+    - name: Create Web Server
+      azure_rm_deployment:
+        state: present
+        resource_group_name: "Ansible-Web"
+        template_link: https://raw.githubusercontent.com/jordanschraa/ansibleAzure/master/bitnamiServerTemplate.txt
+        parameters:
+          "location": 
+            "value": "eastus"
+          "virtualMachineName": 
+            "value": "AnsibleWebServer"
+          "virtualMachineSize": 
+            "value": "Standard_B1s"
+          "adminUsername": 
+            "value": "webadmin"
+          "virtualNetworkName": 
+            "value": "testVnet"
+          "networkInterfaceName": 
+            "value": "ansiblewebserver685"
+          "adminPassword": 
+            "value": "Cpwins1!Cpwins1!"
+          "subnetName": 
+            "value": "AnsibleWeb"
+
+          
+
